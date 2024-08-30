@@ -13,7 +13,7 @@ class InternetCheckScreen extends StatelessWidget {
     return MaterialApp(
         home: BlocProvider(
         /*  BLOC*/
-        create: (_) => InternetBloc(),
+        create: (_) =>  InternetBloc(),
     child:
       Scaffold(
       body: SafeArea(
