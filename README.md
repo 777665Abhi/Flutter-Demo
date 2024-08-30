@@ -30,7 +30,7 @@ The three pillars of GetX
 Add obs to your variable
 Wrap your widget with Obx
 var storeName= ‘D-Mart’.obs;
-
+```dart
 obx(  () => Flexible(
 child: Text(
 controller.storeName.value.toString(),
@@ -38,9 +38,12 @@ style: const TextStyle(
 fontSize: 22, fontWeight: FontWeight.bold) ),
 fit: FlexFit.tight,
 ),),              ],),
+```
 
 
 [Initial Screen]
+```dart
+
 import 'package:flutter/material.dart';
 import '../../constants/exports.dart';
 import '../../common_widgets/widgets.dart';
@@ -66,9 +69,10 @@ body: _body(),
 
 _body() {}
 }
+```
 
 Controller
-
+```dart
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 class QrScannerController extends GetxController
@@ -77,9 +81,10 @@ class QrScannerController extends GetxController
 @override
 void init() {    }
 }
-
+```
 Binding
 
+```dart
 import '../../constants/exports.dart';
 
 class QrScannerBinding extends Bindings {
@@ -88,6 +93,7 @@ void dependencies() {
 Get.put(QrScannerController());
 }
 }
+```
 
 ================>
 List implementation  
