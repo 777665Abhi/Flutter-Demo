@@ -1,21 +1,6 @@
-# my_pro
+# Flutter Doc.
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-# GetX
+## GetX
 It  provides a combination of State Management, Dependency Injection and Route Management solutions that work great together.
 GetxController which extends DisposableInterface.
 
@@ -122,10 +107,10 @@ Divider(color: dividerColor,)],
 ### Screen
 ```dart
 
-//Return type
+// One time want to load data when screen open
 FutureBuilder<ProfileResponse>(
 //Api call to wait
-future: controller.profileGetApi(),
+future: controller.profileResponse,
 builder: (_, snapshot)
 {
 if (snapshot.connectionState == ConnectionState.done) {
@@ -148,6 +133,15 @@ return shimmerView();
 ### Controller Api call
 
 ```dart
+
+Future<ProfileResponse>  profileResponse
+
+@override
+void init() {
+// Want to trigger api only once, when screen open
+profileResponse=profileGetApi();
+ }
+
 Future<ProfileResponse> profileGetApi()async{
 try {
 var id = localStorage.read(SharedPrefConstant().id);
@@ -700,35 +694,16 @@ UI → Event (Stream)  add       Bloc  → Request        Data
  
 
 
-###Bloc file
+##Bloc implementation
+
+State file
 ```dart
 
-class InternetBloc extends Bloc<InternetEvent,InternetState>
-{
-Connectivity _connect= Connectivity();
-StreamSubscription ab;
-InternetBloc():supper(InternetIntialState);
-
-
-//Check event
-on<InternetLostEvent>((event,emit)=>emit(InternetLostState()));
-
-on<InternetGainEvent>((event,emit)=> emit(InternetGainState());
-
-ab= _connect.onConnectivityChanged.listen(result{
-if(result == ConvitityResult.mobile ||)
-
-add(InternetGainEvent());
-Else
-add(InternetLostEvent());
-});
-
-
-Override close ⇒ to clear resources
-ab.close
-}
+abstract class InternetState{}
+class InternetInitialState extends InternetState {}
+class InternetLostState extends InternetState {}
+class InternetGainState extends InternetState {}
 ```
-
 Events file
 ```dart
 
@@ -739,13 +714,113 @@ class InternetGainEvent extends InternetEvent{}
 class InternetLostEvent extends InternetEvent{}
 ```
 
-
-State file
+Bloc file
 ```dart
+class InternetBloc extends Bloc<InternetEvent,InternetState> {
+  StreamSubscription<List<ConnectivityResult>>? subscription;
+  final Connectivity _connectivity= Connectivity();
+  InternetBloc(): super(InternetInitialState()) {
+// Registoring events and setting state 
+    on<InternetLostEvent>((event, emit) => emit(InternetLostState()));
+    on<InternetGainEvent>((event, emit) => emit(InternetGainState()));
 
-abstract class InternetState{}
-class InternetInitialState extends InternetState {}
-class InternetLostState extends InternetState {}
-class InternetGainState extends InternetState {}
+    subscription= _connectivity.onConnectivityChanged.listen((connection) {
+      if(connection.contains(ConnectivityResult.mobile) || connection.contains(ConnectivityResult.wifi))
+        {
+// Adding event, trigger state update
+          add(InternetGainEvent());
+        }
+      else
+        {
+          add(InternetLostEvent());
+        }
+    });
+  }
+
+@override
+  Future<void> close() {
+  subscription!.cancel();
+  return super.close();
+  }
+}
 ```
 
+Screen side updation code
+```dart
+SafeArea(
+        child: Center(
+          child: BlocBuilder<InternetBloc,InternetState>(
+            builder: (context,state) {
+              if(state is InternetGainState)
+                {  return Text("Connected ...");}
+              else if(state is InternetLostState)
+              {  return Text("Not Conected ...");}
+              else
+              {  return Text("Loading ...");}
+            }
+          ),
+        ),
+```
+## Cubit implementation
+
+Events are not required in cubit 
+In function we can emit state number of time, No need of eents.
+
+**Cubit class**
+```dart
+/*No events needed ==> trigger states
+* Function emit it any time, No Event register  */
+
+enum InternetStateCubit{Initial,Lost,Gain}
+class InternetCubit extends Cubit<InternetStateCubit>{
+  StreamSubscription<List<ConnectivityResult>>? subscription;
+  final Connectivity _connectivity= Connectivity();
+  InternetCubit() :super(InternetStateCubit.Initial){
+    subscription= _connectivity.onConnectivityChanged.listen((connection) {
+      if(connection.contains(ConnectivityResult.mobile) || connection.contains(ConnectivityResult.wifi))
+      {
+        emit(InternetStateCubit.Gain);
+      }
+      else
+      {
+        emit(InternetStateCubit.Lost);
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    subscription?.cancel();
+    return super.close();
+  }
+}
+
+```
+Screen file
+
+```dart
+    home: BlocProvider(
+        /*  BLOC*/
+        // create: (_) => InternetBloc(),
+
+        /*  CUBIT */
+        create: (_) => InternetCubit(),
+        child:
+      Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: BlocBuilder<InternetCubit,InternetStateCubit>(
+            builder: (context,state) {
+              if(state == InternetStateCubit.Gain)
+                {  return Text("Connected ...");}
+              else if(state == InternetStateCubit.Lost)
+              {  return Text("Not Conected ...");}
+              else
+              {  return Text("Loading ...");}
+            }
+          ),
+        ),
+      ),
+          )));
+  }
+```
