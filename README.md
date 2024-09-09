@@ -824,3 +824,202 @@ Screen file
           )));
   }
 ```
+
+# Asynchronous programming
+
+Streams and Futures are essential for handling asynchronous programming
+
+**Future** ⇒ deal with a single value that will be available at some point in the future.
+
+**Stream** ⇒  expect multiple values over time (e.g., data from a network request, real-time data, or event streams
+
+### Future
+ operation that will eventually be completed.
+
+async and await ⇒ operations in a readable and synchronous manner.
+
+```Dart
+Future<String> fetchData() async {
+  await Future.delayed(Duration(seconds: 2));  // Simulate a network delay
+  return 'Data fetched';
+}
+
+
+void main() async {
+  print('Fetching data...');
+  String data = await fetchData();
+  print('Result: $data');
+}
+```
+**Then** operation to handle future fun
+
+```Dart
+void main() { 
+print('Fetching data...'); 
+fetchData().then((data) {
+ print('Result: $data'); 
+});
+ }
+```
+### Stream 
+A Stream is a sequence of asynchronous events. It can emit multiple values over time, and you can listen to the stream to react to each new value.
+
+**Single-subscription Stream**: Only have **one listener** at a time. Typically used for I/O operations such as HTTP requests.
+
+**Broadcast Stream**: Can have **multiple listeners** and is used for real-time data events like WebSocket connections or user input events.
+
+
+**StreamController** can be used to manually **control a stream and add events to it.**
+
+Listening: You can listen to a stream using await for or StreamSubscription.
+
+```Dart
+Stream<int> numberStream() async* {
+  for (int i = 1; i <= 5; i++) {
+    await Future.delayed(Duration(seconds: 1));
+// Emit the next number
+    yield i;    
+   }
+}
+
+void main() async {
+  print('Listening to number stream...');
+  await for (int number in numberStream()) {
+    print('Number: $number');
+  }
+}
+```
+**StreamController**
+Manually control a stream using StreamController, which allows you to **add events to the stream**  programmatically.
+```Dart
+import 'dart:async';
+
+void main() {
+  final StreamController<int> controller = StreamController<int>();
+
+  // Listen to the stream
+  controller.stream.listen((value) {
+    print('Received: $value');
+  });
+
+  // Add values to the stream
+  controller.add(1);
+  controller.add(2);
+  controller.add(3);
+
+  // Close the stream when done
+  controller.close();
+}
+
+```
+Manually push values into a stream using **controller.add().**
+
+
+StreamSubscription
+Sometimes you need more control over the listening process, like pausing or canceling a stream. This is done via a StreamSubscription.
+
+```Dart
+Stream<int> numberStream() async* {
+  for (int i = 1; i <= 5; i++) {
+    await Future.delayed(Duration(seconds: 1));
+    yield i;
+  }
+}
+
+void main() {
+  StreamSubscription<int> subscription = numberStream().listen((value) {
+    print('Received: $value');
+  });
+
+  // You can pause, resume, or cancel the subscription
+  subscription.onDone(() {
+    print('Stream completed');
+  });
+}
+```
+
+Future to Stream
+```Dart
+  Stream<int> stream = Stream.fromFuture(fetchValue()); 
+```
+Stream to Future
+```Dart
+  int firstValue = await numberStream().first; 
+```
+
+# Isolate and threads 
+
+Trigger isolate
+```Dart
+import 'dart:isolate';
+
+// This function runs in a separate isolate
+void isolateTask(String message) {
+  print('Message from main isolate: $message');
+}
+
+void main() async {
+  // Spawning a new isolate
+**  await Isolate.spawn(isolateTask, 'Hello from main thread!');**
+  print('Back to main isolate');
+}
+```
+
+Comm. btw isolate
+
+```Dart
+import 'dart:isolate';
+
+//Isolate task  and send data back
+void isolateTask(SendPort sendPort) {
+  sendPort.send('Hello from the isolate!');
+}
+
+void main() async {
+  // Creating a ReceivePort to receive messages
+  ReceivePort receivePort = ReceivePort();
+
+  // Spawning an isolate and passing the sendPort
+  await Isolate.spawn(isolateTask, receivePort.sendPort);
+
+  // Listening for messages from the isolate
+  receivePort.listen((message) {
+    print('Message from isolate: $message');
+  });
+}
+```
+Compute()
+
+Simpler API for spawning isolates through the compute() function, which abstracts the isolate management and message-passing complexities.
+
+```Dart
+import 'package:flutter/foundation.dart';
+
+int performHeavyTask(int value) {
+  // Simulating a heavy computation
+  return value * 2;
+}
+
+void main() async {
+  // Running the heavy task in an isolate
+  int result = await compute(performHeavyTask, 10);
+  print('Result from isolate: $result');
+}
+```
+
+The compute() function takes two arguments: a top-level function (or static method) and a single argument. It spawns an isolate, runs the function, and returns the result to the main isolate.
+
+
+
+Terminating an Isolate
+
+```Dart
+ // Spawning an isolate 
+ReceivePort receivePort = ReceivePort(); 
+myIsolate = await Isolate.spawn(isolateTask, receivePort.sendPort); 
+
+// Kill the isolate after some time 
+myIsolate.kill(priority: Isolate.immediate);
+```
+The compute() function simplifies isolate management, but it doesn’t offer control over its lifecycle beyond waiting for the result.
+
