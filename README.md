@@ -35,7 +35,7 @@ import '../../common_widgets/widgets.dart';
 
 import 'QrScannerController.dart';
 
-class QrScannerScreen extends **GetView<QrScannerController>** {
+class QrScannerScreen extends GetView<QrScannerController> {
 const QrScannerScreen({Key? key}) : super(key: key);
 
 @override
@@ -62,7 +62,11 @@ class QrScannerController extends GetxController
 {
 
 @override
-void init() {    }
+void onInit() {
+ super.onInit();
+}
+
+
 }
 ```
 ### Binding
