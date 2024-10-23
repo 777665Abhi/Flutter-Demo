@@ -1,5 +1,7 @@
 # Flutter Doc.
+GetX: [Link Text](#GetX).
 
+BLOC [Link](#BLOC)
 ## GetX
 It  provides a combination of State Management, Dependency Injection and Route Management solutions that work great together.
 GetxController which extends DisposableInterface.
