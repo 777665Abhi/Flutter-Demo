@@ -1,7 +1,10 @@
 # Flutter Doc.
-GetX: [Link Text](#GetX).
+[GetX:](#GetX).
+[BLOC](#BLOC)
+[Async programing](#Asynchronous-programming)
+[List Implementation](#List-implementation)
+[Ui update](#Update-UI)
 
-BLOC [Link](#BLOC)
 ## GetX
 It  provides a combination of State Management, Dependency Injection and Route Management solutions that work great together.
 GetxController which extends DisposableInterface.
