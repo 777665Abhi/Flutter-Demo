@@ -17,12 +17,9 @@ GetxController which extends DisposableInterface.
 
 
 The three pillars of GetX
-[State management]: GetX has two state managers. One is a simple state manager used with the GetBuilder function, and the other is a reactive state manager used with Getx or Obx. We will be talking about it in detail below
 
-[Route management]: whether navigating between screens, showing SnackBars, popping dialog boxes, or adding bottom sheets without the use of context,
-
-[Dependency management]: GetX has a simple yet powerful solution for dependency management using controllers. With just a single line of code, it can be accessed from the view without using an inherited widget or context. Typically, you would instantiate a class within a class, but with GetX, you are instantiating with the Get instance, which will be available throughout your application
-
+### State management:
+GetX has two state managers. **GetBuilder** function, and the other is a reactive state manager used with **Getx or Obx**. We will be talking about it in detail below
 Add obs to your variable
 Wrap your widget with Obx
 var storeName= ‘D-Mart’.obs;
@@ -35,6 +32,52 @@ fontSize: 22, fontWeight: FontWeight.bold) ),
 fit: FlexFit.tight,
 ),),              ],),
 ```
+
+### Route management:
+whether navigating between screens, showing SnackBars, popping dialog boxes, or adding bottom sheets without the use of context,
+
+### Dependency management]:
+1. Dependency Injection (DI) in GetX
+**Put**: Instantiates and registers a dependency immediately. It’s suitable for dependencies that are needed throughout the app.
+```dart
+Get.put<Controller>(Controller());
+```
+**LazyPut**: Registers a dependency that is created only when it’s first used, saving memory.
+```dart
+Get.lazyPut<Controller>(() => Controller());
+```
+**Permanent**: Keeps the dependency in memory even if it’s not currently used, useful for services or controllers needed throughout the app’s lifecycle.
+```dart
+Get.put<Controller>(Controller(), permanent: true);
+```
+**PutAsync**: Registers an asynchronous dependency, which is created only when it’s accessed.
+```dart
+Get.putAsync<Controller>(() async => await Controller().init());
+```
+
+2. Dependency Management in Bindings
+Bindings allow dependencies to be organized and injected automatically when navigating to a particular page. This approach makes it easy to manage dependencies by page.
+```dart
+
+class HomeBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<HomeController>(() => HomeController());
+  }
+}
+```
+3. Dependency Disposal
+GetX handles the automatic disposal of dependencies, which helps in cleaning up resources when they’re no longer in use.
+Tagging: When you need multiple instances of the same dependency, you can tag each one uniquely.
+```dart
+Copy code
+Get.put(Controller(), tag: 'tag1');
+Delete Dependency: Manually remove dependencies if needed.
+```
+```dart
+Get.delete<Controller>();
+```
+
 
 
 ### Initial Screen
