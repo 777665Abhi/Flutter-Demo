@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_pro/platform_comm/BatteryLevelMethodChannelScreen.dart';
+import 'package:my_pro/platform_comm/batteryLevelEventChannelScreen.dart';
 import 'package:my_pro/web_socket/WebSocketScreen.dart';
 
 import 'bloc_internet/InternetCheckScreen.dart';
@@ -52,6 +54,18 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => BatteryLevelEventChannelScreen()));
+              },
+              child: const Text(
+                'Platform channel',
+                style: TextStyle(color: Colors.black, fontSize: 13.0),
+              ),
+            ),
+          ),
       ],),
     ),),)
     );

@@ -26,7 +26,7 @@ var storeName= ‘D-Mart’.obs;
 ```dart
 obx(  () => Flexible(
 child: Text(
-controller.storeName.value.toString(),
+   controller.storeName.value.toString(),
 style: const TextStyle(
 fontSize: 22, fontWeight: FontWeight.bold) ),
 fit: FlexFit.tight,
