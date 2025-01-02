@@ -90,7 +90,7 @@ import '../../common_widgets/widgets.dart';
 import 'QrScannerController.dart';
 
 class QrScannerScreen extends GetView<QrScannerController> {
-const QrScannerScreen({Key? key}) : super(key: key);
+const QrScannerScreen({super.key});
 
 @override
 Widget build(BuildContext context) {
